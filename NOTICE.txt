@@ -1,0 +1,5 @@
+lucenecli
+Copyright 2016 Pascal Dimassimo
+
+This software is released under version 2.0 of the Apache License.
+See LICENSE.txt for a copy of that license.
