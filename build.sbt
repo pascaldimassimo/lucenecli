@@ -6,7 +6,7 @@ version := "1.0.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-val luceneVersion = "6.1.0"
+val luceneVersion = "5.5.3"
 val jacksonVersion = "2.7.4"
 
 libraryDependencies ++= Seq(
@@ -20,7 +20,6 @@ libraryDependencies ++= Seq(
 	"org.apache.lucene" % "lucene-facet" % luceneVersion,
 	"org.apache.lucene" % "lucene-grouping" % luceneVersion,
 	"org.apache.lucene" % "lucene-backward-codecs" % luceneVersion,
-	"org.apache.lucene" % "lucene-misc" % luceneVersion,
 
 	"jline" % "jline" % "2.14.2",
 

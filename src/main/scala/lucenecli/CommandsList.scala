@@ -24,8 +24,7 @@ object CommandsList {
     CommandTerms,
     CommandGroups,
     CommandVectors,
-    CommandDocument,
-    CommandPoints
+    CommandDocument
   )
 
   val commandsNames = commands.map(_.name)

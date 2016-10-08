@@ -59,9 +59,6 @@ object CommandFields extends Command("fields") {
       if (fi.getDocValuesType ne DocValuesType.NONE) {
         out.println(s"\tDocValues (${fi.getDocValuesType})")
       }
-      if (fi.getPointDimensionCount > 0 && fi.getPointNumBytes > 0) {
-        out.println(s"\tPoints (dimensions: ${fi.getPointDimensionCount}, bytes: ${fi.getPointNumBytes})")
-      }
     }
   }
 }
