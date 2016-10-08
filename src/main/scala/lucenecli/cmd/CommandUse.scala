@@ -9,7 +9,7 @@ import java.io.PrintWriter
 
 import lucenecli.{Command, Context, LuceneReaderWrapper}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object CommandUse extends Command("use") {
 
@@ -23,13 +23,15 @@ object CommandUse extends Command("use") {
     }
 
     context.wrapper.map(_.close)
-    val wrapper = Try(new LuceneReaderWrapper(params.head))
-    if (wrapper.isSuccess) {
-      context.out.println("Using index " + wrapper.get.fileIndexPath)
-      new Context(context.out, Some(wrapper.get))
-    } else {
-      context.out.println("Invalid index path")
-      context.stateless
+    Try(new LuceneReaderWrapper(params.head)) match {
+      case Success(wrapper) => {
+        context.out.println("Using index " + wrapper.fileIndexPath)
+        new Context(context.out, Some(wrapper))
+      }
+      case Failure(t) => {
+        context.out.println(t.getMessage)
+        context.stateless
+      }
     }
   }
 
