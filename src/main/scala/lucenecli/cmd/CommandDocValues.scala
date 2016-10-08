@@ -25,7 +25,7 @@ object CommandDocValues extends Command("docvalues") {
     })
 
     if (params.size < 1 || params.size > 2) {
-      context.out.println("Syntax error: command 'docvalues' needs a docvalue name and an optional segment")
+      context.out.println("Syntax error: command 'docvalues' needs a docvalue name and an optional segment name")
       return context.stateless
     }
 
@@ -167,5 +167,5 @@ object CommandDocValues extends Command("docvalues") {
   }
 
   override def help(out: PrintWriter): Unit =
-    out.println("\tdocvalues [segment name]\tDisplay DocValues of the index or of a single segment.")
+    out.println("\tdocvalues name [segment]\tDisplay DocValues of the index or of a single segment.")
 }

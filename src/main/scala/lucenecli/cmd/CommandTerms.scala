@@ -11,6 +11,9 @@ import lucenecli.{Command, Context, Utils}
 import org.apache.lucene.index.IndexOptions._
 import org.apache.lucene.index._
 import org.apache.lucene.search.DocIdSetIterator
+import org.apache.lucene.util.BytesRef
+
+import scala.annotation.tailrec
 
 object CommandTerms extends Command("terms") {
 
@@ -23,50 +26,105 @@ object CommandTerms extends Command("terms") {
       return context.stateless
     })
 
-    if (params.size != 2) {
-      context.out.println("Syntax error: command 'terms' requires a segment name and a field name")
+    if (params.size < 1) {
+      context.out.println("Syntax error: command 'terms' requires a field name and an optional prefix and segment name")
       return context.stateless
     }
 
-    wrapper.getSegmentContext(params.head).map(segmentContext => {
-      printTerms(segmentContext, params(1), context.out)
-    }).getOrElse({
-      context.out.println("Invalid segment name")
-    })
+    val resume = context.commandToResume.contains(this)
+    val segmentNameOpt = params.lift(1)
 
-    context.stateless
+    val nbToPrint = opts.get("rows")
+      .map(_.asInstanceOf[Int]).getOrElse(10)
+
+    val startIndex = if (resume)
+      context.state.get("startIndex").get.asInstanceOf[Int]
+    else 0
+
+    val readerOpt = if (segmentNameOpt.isDefined) {
+      wrapper.getSegmentContext(segmentNameOpt.get).map(
+        segmentContext => segmentContext.reader.asInstanceOf[SegmentReader]
+      )
+    } else {
+      // Full index reader
+      Some(SlowCompositeReaderWrapper.wrap(wrapper.reader))
+    }
+
+    if (readerOpt.isEmpty) {
+      context.out.println("Invalid segment name")
+      context.stateless
+    } else {
+      val moreTerms = printTerms(
+        readerOpt.get, params.head, opts, startIndex, nbToPrint, context.out)
+      if (moreTerms) {
+        context.out.println("Type \"it\" for more")
+        val state = Map[String, Any](
+          "startIndex" -> (startIndex + nbToPrint))
+        new Context(context.out, context.wrapper, Some(this), state, params, opts)
+      }
+      else {
+        context.stateless
+      }
+    }
   }
 
-  def printTerms(segmentContext: LeafReaderContext,
+  def printTerms(reader: LeafReader,
                  fieldname: String,
-                 out: PrintWriter) {
+                 opts: Map[String, Any],
+                 start: Int,
+                 nb: Int,
+                 out: PrintWriter): Boolean = {
 
-    val reader = segmentContext.reader.asInstanceOf[SegmentReader]
     val fi: FieldInfo = reader.getFieldInfos.fieldInfo(fieldname)
     val terms: Terms = reader.terms(fieldname)
     if (terms == null) {
       out.println(s"field $fieldname does not exists")
-      return
+      return false
     }
-    val te: TermsEnum = terms.iterator
 
-    Stream.continually(te.next)
-      .takeWhile(_ != null)
-      .foreach(term => {
+    val end = start + nb
+    val prefixOpt = opts.get("prefix").map(_.asInstanceOf[String])
+    val fullDisplayOpt = opts.get("full").map(_.asInstanceOf[Boolean])
 
-        out.println(s"${term.utf8ToString} (df: ${te.docFreq})")
-        fi.getIndexOptions match {
-          case DOCS =>
-            printDocs(te, false, out)
-          case DOCS_AND_FREQS =>
-            printDocs(te, true, out)
-          case DOCS_AND_FREQS_AND_POSITIONS =>
-            printDocsAndPosition(te, out)
-          case DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS =>
-            printDocsAndPosition(te, out)
-          case NONE =>
+    @tailrec
+    def iter(te: TermsEnum,
+             current: Int): BytesRef = {
+
+      val term = te.next
+      if (term != null && current < end) {
+        // TODO use seek when we don't start at 0 (instead of re-iterate each time)
+        if (current >= start &&
+          (!prefixOpt.isDefined || term.utf8ToString().startsWith(prefixOpt.get))) {
+          out.println(s"${term.utf8ToString} (df: ${te.docFreq})")
+          if (fullDisplayOpt.isDefined && fullDisplayOpt.get) {
+            fi.getIndexOptions match {
+              case DOCS =>
+                printDocs(te, false, out)
+              case DOCS_AND_FREQS =>
+                printDocs(te, true, out)
+              case DOCS_AND_FREQS_AND_POSITIONS =>
+                printDocsAndPosition(te, out)
+              case DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS =>
+                printDocsAndPosition(te, out)
+              case NONE =>
+            }
+          }
         }
-      })
+
+        // Don't increment counter if we have a prefix and the terms
+        // don't match it yet. Otherwise, increment counter.
+        val nextCurrent = if (prefixOpt.isDefined &&
+          !term.utf8ToString().startsWith(prefixOpt.get)) current
+        else current + 1
+
+        iter(te, nextCurrent)
+
+      } else term
+    }
+
+    // Start iterating and return whether or not we reached the end of the
+    // iterator
+    iter(terms.iterator, 0) != null
   }
 
   private def printDocs(te: TermsEnum, hasFreq: Boolean, out: PrintWriter) {
@@ -107,5 +165,5 @@ object CommandTerms extends Command("terms") {
   }
 
   override def help(out: PrintWriter): Unit =
-    out.println("\tterms [segment] [field]\tDisplay terms of a segment.")
+    out.println("\tterms field [prefix] [segment]\tDisplay terms of whole index or a segment.")
 }

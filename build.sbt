@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
 	"org.apache.lucene" % "lucene-facet" % luceneVersion,
 	"org.apache.lucene" % "lucene-grouping" % luceneVersion,
 	"org.apache.lucene" % "lucene-backward-codecs" % luceneVersion,
+	"org.apache.lucene" % "lucene-misc" % luceneVersion,
 
 	"jline" % "jline" % "2.14.2",
 
