@@ -6,7 +6,7 @@ version := "1.0.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-val luceneVersion = "6.1.0"
+val luceneVersion = "6.2.1"
 val jacksonVersion = "2.7.4"
 
 libraryDependencies ++= Seq(

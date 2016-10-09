@@ -47,6 +47,8 @@ object CommandTerms extends Command("terms") {
       )
     } else {
       // Full index reader
+      // TODO replace because this class is deprecated and
+      // it does not work if index contains points
       Some(SlowCompositeReaderWrapper.wrap(wrapper.reader))
     }
 
