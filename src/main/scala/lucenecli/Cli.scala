@@ -5,11 +5,12 @@
  */
 package lucenecli
 
-import java.io.PrintWriter
+import java.io.{File, PrintWriter}
 
 import jline.TerminalFactory
 import jline.console.ConsoleReader
 import jline.console.completer.StringsCompleter
+import jline.console.history.FileHistory
 import lucenecli.cmd.{CommandExit, CommandIt, CommandUse}
 
 import scala.annotation.tailrec
@@ -19,8 +20,12 @@ class Cli {
 
   val parser = new CommandParser
 
+  val historyFilename = s"${System.getProperty("user.home")}/.lucenecli"
+  val history = new FileHistory(new File(historyFilename))
+
   val reader = new ConsoleReader
   reader.setPrompt("> ")
+  reader.setHistory(history)
 
   val completer = new StringsCompleter(CommandsList.commandsNames.asJava)
   reader.addCompleter(completer)
@@ -43,6 +48,8 @@ class Cli {
     TerminalFactory.get.restore
 
     context.wrapper.map(_.close)
+
+    history.flush()
   }
 
   @tailrec
