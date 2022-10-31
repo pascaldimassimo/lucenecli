@@ -2,11 +2,11 @@
 // files 'LICENSE.txt' and 'NOTICE.txt', which is part of this
 // source code package.
 
-version := "1.0.0-SNAPSHOT"
+version := "1.1.0-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-val luceneVersion = "6.2.1"
+val luceneVersion = "7.7.2"
 val jacksonVersion = "2.7.4"
 
 libraryDependencies ++= Seq(

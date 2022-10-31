@@ -40,5 +40,5 @@ object CommandPoints extends Command("points") {
   }
 
   override def help(out: PrintWriter): Unit =
-    out.println("\tterms [segment] [field]\tDisplay basic info about a points field across the whole index.")
+    out.println("\tpoints [segment] [field]\tDisplay basic info about a points field across the whole index.")
 }

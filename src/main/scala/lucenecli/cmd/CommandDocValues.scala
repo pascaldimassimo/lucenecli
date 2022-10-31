@@ -134,7 +134,8 @@ object CommandDocValues extends Command("docvalues") {
                         segmentReader: SegmentReader,
                         docId: Int): String = {
     val bdv: BinaryDocValues = segmentReader.getBinaryDocValues(dvName)
-    val bytes: BytesRef = bdv.get(docId)
+    bdv.advanceExact(docId)
+    val bytes: BytesRef = bdv.binaryValue()
     Utils.bytesToHex(bytes.bytes, bytes.offset, bytes.length)
   }
 
@@ -142,14 +143,16 @@ object CommandDocValues extends Command("docvalues") {
                          segmentReader: SegmentReader,
                          docId: Int): Long = {
     val ndv: NumericDocValues = segmentReader.getNumericDocValues(dvName)
-    ndv.get(docId)
+    ndv.advanceExact(docId)
+    ndv.longValue()
   }
 
   def getSortedDocValue(dvName: String,
                         segmentReader: SegmentReader,
                         docId: Int): String = {
     val sdv: SortedDocValues = segmentReader.getSortedDocValues(dvName)
-    val bytes: BytesRef = sdv.get(docId)
+    sdv.advanceExact(docId)
+    val bytes: BytesRef = sdv.binaryValue()
     bytes.utf8ToString
   }
 
@@ -158,7 +161,7 @@ object CommandDocValues extends Command("docvalues") {
                            docId: Int): List[String] = {
 
     val ssdv: SortedSetDocValues = segmentReader.getSortedSetDocValues(dvName)
-    ssdv.setDocument(docId)
+    ssdv.advanceExact(docId)
 
     Stream.continually(ssdv.nextOrd)
       .takeWhile(_ != SortedSetDocValues.NO_MORE_ORDS)

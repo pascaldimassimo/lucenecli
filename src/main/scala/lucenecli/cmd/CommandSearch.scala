@@ -6,9 +6,8 @@
 package lucenecli.cmd
 
 import java.io.PrintWriter
-
 import lucenecli.{Command, Context, MetaDocument, MetaDocumentForSearch}
-import org.apache.lucene.analysis.core.SimpleAnalyzer
+import org.apache.lucene.analysis.core.{SimpleAnalyzer, WhitespaceAnalyzer}
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser
 import org.apache.lucene.search.{ScoreDoc, TopDocs}
 
@@ -39,7 +38,7 @@ object CommandSearch extends Command("search") {
       .toArray[String]
 
     // TODO make analyzer configurable
-    val parser = new MultiFieldQueryParser(df, new SimpleAnalyzer)
+    val parser = new MultiFieldQueryParser(df, new WhitespaceAnalyzer)
     val searcher = wrapper.searcher
     val query = parser.parse(params.head)
 

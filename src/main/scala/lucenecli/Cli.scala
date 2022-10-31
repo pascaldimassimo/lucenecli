@@ -31,7 +31,7 @@ class Cli {
   reader.addCompleter(completer)
 
   val out = new PrintWriter(reader.getOutput, true)
-  out.println("Lucene CLI Version 1.0.0")
+  out.println("Lucene CLI Version 1.1.0")
 
   def run(args: Array[String]) = {
 

@@ -22,4 +22,4 @@ Then, you need to clone this repository and build the jar by using this command 
 
 Once it is done, you can start lucenecli with this command:
 
-    java -jar target/scala-2.11/lucenecli-assembly-1.0.0-SNAPSHOT.jar
+    java -jar target/scala-2.11/lucenecli-assembly-1.1.0-SNAPSHOT.jar
