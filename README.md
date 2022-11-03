@@ -1,6 +1,6 @@
 ## Introduction
 
-lucenecli is a command line tool to explore Lucene indexes. It can read Lucene versions 5 and 6 indexes.
+lucenecli is a command line tool to explore Lucene indexes. It can read Lucene versions 5, 6 and 7 indexes.
 
 Here are some of the available commands:
  - list all fields

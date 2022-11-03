@@ -4,7 +4,7 @@
 
 version := "1.1.0-SNAPSHOT"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.12"
 
 val luceneVersion = "7.7.2"
 val jacksonVersion = "2.7.4"
