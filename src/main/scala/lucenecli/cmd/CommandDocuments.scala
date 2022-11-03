@@ -65,7 +65,7 @@ object CommandDocuments extends Command("documents") {
   }
 
   override def help(out: PrintWriter): Unit =
-    out.println("\tdocuments\tDisplay documents.")
+    out.println("\tdocuments [segment name]\tDisplay documents of a segment or the whole index.")
 
   /**
     * @param start start index at the top reader level
